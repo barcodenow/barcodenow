@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Some examples to demonstrate how to use QTerminal bookmarks.
+Adjust them to fit your needs. -->
+<qterminal>
+<command name="root shell" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --sudo-s"/>
+<group name="CELLULAR">
+<command name="sim imsi lookup" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --sim-imsi"/>
+<command name="ss7" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --ss7"/>
+<command name="ss7 edit client config" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --ss7-edit-client-config"/>
+<command name="ss7 edit stp" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --ss7-edit-stp"/>
+<command name="ss7 edit vlr" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --ss7-edit-vlr"/>
+<command name="ss7 edit hlr" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --ss7-edit-hlr"/>
+</group>
+<group name="FORENSICS">
+<command name="merge mp3" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --merge-mp3"/>
+<command name="vid meta" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --vid-meta"/>
+<command name="download mp3" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --ytdl"/>
+<command name="img meta" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --img-meta"/>
+<command name="extract-img-from-vid" value="/home/snuff/Desktop/MENU/MAIN_CONFIG  --extract-img-from-vid"/>
+<command name="ALL File Forensics " value="/home/snuff/Desktop/MENU/MAIN_CONFIG --cyberchef"/>
+</group>
+<group name="HOTSPOT // INTERFACES // VLANS">
+<command name="Create vlan" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --add-vlan"/>
+<command name="Create ifaces" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --create-iface"/>
+<command name="Create Hotspot" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --create-hotspot"/>
+<command name="virtual router" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --mitm-router"/>
+</group>
+<group name="OSINT">
+<command name="license plate lookup" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --plate-lookup"/>
+<command name="osint-username" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --osint-username"/>
+<command name="osint email" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --osint-email"/>
+<command name="osint phone" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --osint-phone"/>
+<command name="osint f l name" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --osint-f-l-name"/>
+<command name="Collect Target info" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --collect"/>
+<command name="OSINT spiderfoot" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --sf-osint"/>
+<command name="Censys Information" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --censys"/>
+</group>
+<group name="PENTEST SCANNERS">
+<command name="Scan nearby access points" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --scan-wifi"/>
+<command name="Scan LocalNet" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --scan-local"/>
+<command name="Domain scan" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --domain-scan"/>
+<command name="Ip Scan" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --ip-scan"/>
+<command name="URL scan" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --url-scan"/>
+<command name="Fping scan" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --fping"/>
+<command name="CIDR,IP,HOSTNAME scan" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --masky"/>
+<command name="Scan AS Number" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --scan-as"/>
+</group>
+<group name="SYSTEM">
+<command name="Kill Process on Port" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --tcp-kill"/>
+<command name="Set mac address" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --set-mac"/>
+<command name="Random Mac address" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --random-mac"/>
+<command name="IP forward ON" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --ip-on"/>
+<command name="IP forward OFF" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --ip-off"/>
+<command name="Reject ip address" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --reject-ip"/>
+<command name="Restart Network" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --rnet"/>
+<command name="Start HTTP server" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --http-server"/>
+<command name="Configure Kernal" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --config-kernal"/>
+<command name="Network info" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --net-info"/>
+<command name="Scan system" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --scan-sys"/>
+</group>
+<group name="WIRELESS-802.11">
+<command name="Start monitor mode" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --start-mon"/>
+<command name="Stop monitor mode" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --stop-mon"/>
+<command name="airodump-ng" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --airodump-ng-chsel"/>
+<command name="Wps pin attack" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --wps-attack"/>
+<command name="Aireplay-ng deauth" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --deauth"/>
+<command name="Mdk4 A" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --mdk4-a"/>
+<command name="Mdk4 B" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --mdk4-b"/>
+<command name="Mdk4 D" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --mdk4-d"/>
+<command name="Mdk4 E" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --mdk4-e"/>
+<command name="Mdk4 F" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --mdk4-f"/>
+<command name="Mdk4 M" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --mdk4-m"/>
+<command name="Mdk4 P" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --mdk4-p"/>
+<command name="Mdk4 S" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --mdk4-s"/>
+<command name="Mdk4 W" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --mdk4-w"/>
+<command name="get fucked" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --get-fucked"/>
+</group>
+<group name="MITM // SNIFF // PHISH">
+<command name="MITM bettercap" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --bettercap"/>
+<command name="MITM beef" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --beef"/>
+<command name="MITM arpspoof" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --arpspoof"/>
+<command name="PHISH gophish" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --phish-gophish"/>
+<command name="PHISH social phish" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --phish-socialphish"/>
+</group>
+<group name="BRUTEFORCE">
+<command name="Automated Brute Pass" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --hydra-pass-automated"/>
+<command name="Brute force facebook" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --brute-fb"/>
+<command name="Brute force twitter" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --brute-twitter"/>
+<command name="Brute force hotmail" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --brute-hotmail"/>
+<command name="Brute Gmail" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --brute-gmail"/>
+<command name="Create password list" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --create-pwlist"/>
+<command name="Brute SNMP" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --brute-snmp"/>
+<command name="Brute FTP" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --brute-ftp"/>
+<command name="Brute SSH" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --brute-ssh"/>
+<command name="Brute POP3" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --brute-pop3"/>
+<command name="Brute SMTP" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --brute-smtp"/>
+<command name="Brute SMB" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --brute-smb"/>
+<command name="Brute Wordpress" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --brute-wordpress"/>
+<command name="Decode base64" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --decode-base64"/>
+<command name="Encode base64" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --encode-base64"/>
+<command name="Generate Certificates" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --gen-cert"/>
+<command name="Crack PCAP" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --crack-pcap"/>
+</group>
+<group name="DENIAL OF SERVICE">
+<command name="Denial of service[halflife]" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --ddos-halflife"/>
+<command name="Denial of service[sms]" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --ddos-sms"/>
+<command name="Denial of service[hping3]" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --ddos-hping3"/>
+<command name="Denial of service[t50]" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --ddos-t50"/>
+</group>
+<group name="EXTRACTORS">
+<command name="Extract emails from a file" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --extract-emails"/>
+<command name="Extract ip-address from file" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --extract-ip"/>
+<command name="Extract passwords from file" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --extract-pass"/>
+<command name="Extract Usernames from file" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --extract-users"/>
+<command name="Extract URL's from file" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --extract-urls"/>
+<command name="Extract Credit Card numbers from file" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --extract-cc"/>
+<command name="Extract social securirty from file" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --extract -ss"/>
+<command name="Extract phone numbers from file" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --extract-phone"/>
+<command name="Extract Hash's from file" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --extract-hash"/>
+</group>
+<group name="UTILITIES">
+<command name="HTTP-CLI GET,POST ETC" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --http-cli"/>
+<command name="Find files by:ext,word,name,replace text" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --file-search"/>
+<command name="Clone Website" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --clone-web"/>
+<command name="Mac-Address lookup" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --mac-lookup"/>
+<command name="Bypass Web restrictions" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --bypass-web"/>
+<command name="convert MD 2 HTML" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --md2html"/>
+<command name="Connect 2 open tcp Port" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --tcp-con"/>
+<command name="Key logger" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --keylog"/>
+<command name="Loop a command" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --loopcmd"/>
+</group>
+<group name="ANDROID">
+<command name="Android Fastboot" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --fastboot"/>
+<command name="adb help" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-help"/>
+<command name="adb con usb" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-usb"/>
+<command name="adb start server" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-ss"/>
+<command name="adb stop server" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-sts"/>
+<command name="adb list dev" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-list-dev"/>
+<command name="adb connect tcp" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-con-tcp"/>
+<command name="adb set batt lvl" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-set-batt"/>
+<command name="adb pair" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-pair"/>
+<command name="adb set window size" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-wm"/>
+<command name="adb list packages" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-lp"/>
+<command name="adb call menu" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-call"/>
+<command name="adb send sms" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-send-text"/>
+<command name="adb hit home button" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-home-buttom"/>
+<command name="adb reset permissions" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-reset-perm"/>
+<command name="adb revoke permissions" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-revoke-perm"/>
+<command name="adb grant permissions" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-grant-perm"/>
+<command name="adb screen bright up" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-bright-up"/>
+<command name="adb screen bright down" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-bright-down"/>
+<command name="adb open contacts" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-contacts"/>
+<command name="adb open camera" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-open-cam"/>
+<command name="adb print text input" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-print-text"/>
+<command name="adb hit enter button" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-hit-enter"/>
+<command name="adb open web" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-open-web"/>
+<command name="adb uninstall package" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-unin"/>
+<command name="adb reboot recovery" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-reboot-rec"/>
+<command name="adb reboot bootloader" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-reboot-bootloader"/>
+<command name="adb backup all" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-bkup-all"/>
+<command name="adb service list" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-service-list"/>
+<command name="adb list phone features" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --adb-list-phone-feat"/>
+</group>
+<group name="METASPLOIT">
+<command name="MSF payload and listener" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --msf-listener"/>
+<command name="MSF Payload Create" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --msf-create-payload"/>
+<command name="Create APK with metasploit" value="/home/snuff/Desktop/MENU/MAIN_CONFIG --create-apk"/>
+</group>
+
+<command name="" value="/home/snuff/Desktop/MENU/MAIN_CONFIG "/>
+<command name="" value="/home/snuff/Desktop/MENU/MAIN_CONFIG "/>
+
+
+
+
+

